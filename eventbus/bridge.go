@@ -21,6 +21,7 @@ import (
 	"encoding/json"
 	"net"
 	"sync"
+	"crypto/tls"
 )
 
 // A connection to an event bus TCP bridge.
@@ -33,6 +34,7 @@ type EventBus struct {
 	sendMutex  sync.Mutex
 }
 
+
 // Connects to a remote Vert.x application over the event bus TCP bridge.
 //
 // The address shall be specified as for 'net.Dial' connections, like 'somewhere.tld:port'.
@@ -40,6 +42,17 @@ type EventBus struct {
 // An EventBus pointer or an error are returned.
 func NewEventBus(address string) (*EventBus, error) {
 	connection, err := net.Dial("tcp", address)
+	if err != nil {
+		return nil, err
+	}
+	return &EventBus{connection, sync.Mutex{}}, nil
+}
+func NewTLSEventBus(address string) (*EventBus, error) {
+
+	conf := &tls.Config{
+		InsecureSkipVerify: true,
+	}
+	connection, err := tls.Dial("tcp", address,conf)
 	if err != nil {
 		return nil, err
 	}
