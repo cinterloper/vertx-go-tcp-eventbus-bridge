@@ -47,12 +47,8 @@ func NewEventBus(address string) (*EventBus, error) {
 	}
 	return &EventBus{connection, sync.Mutex{}}, nil
 }
-func NewTLSEventBus(address string) (*EventBus, error) {
-
-	conf := &tls.Config{
-		InsecureSkipVerify: true,
-	}
-	connection, err := tls.Dial("tcp", address,conf)
+func NewTLSEventBus(address string, tlsconfig tls.Config) (*EventBus, error) {
+	connection, err := tls.Dial("tcp", address,tlsconfig)
 	if err != nil {
 		return nil, err
 	}
