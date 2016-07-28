@@ -19,6 +19,8 @@ package app;
 import io.vertx.core.Vertx;
 import io.vertx.core.eventbus.MessageProducer;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.net.NetServerOptions;
+import io.vertx.core.net.NetServerOptionsConverter;
 import io.vertx.ext.bridge.BridgeOptions;
 import io.vertx.ext.bridge.PermittedOptions;
 import io.vertx.ext.eventbus.bridge.tcp.TcpEventBusBridge;
@@ -27,11 +29,18 @@ public class Main {
 
   public static void main(String... args) throws Throwable {
 
+
+    NetServerOptions nso = new NetServerOptions();
+    JsonObject config = new JsonObject();
+
+    if(System.getenv('NETSERVER_CONFIG') != null)
+      NetServerOptionsConverter.fromJson(new JsonObject(System.getenv('NETSERVER_CONFIG')),nso);
     Vertx vertx = Vertx.vertx();
     TcpEventBusBridge bridge = TcpEventBusBridge.create(vertx,
         new BridgeOptions()
             .addInboundPermitted(new PermittedOptions().setAddressRegex("sample.*"))
-            .addOutboundPermitted(new PermittedOptions().setAddressRegex("sample.*"))
+            .addOutboundPermitted(new PermittedOptions().setAddressRegex("sample.*")),
+            nso
     );
 
     vertx.eventBus().consumer("sample.dumb.inbox", message -> {

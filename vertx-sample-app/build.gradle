@@ -18,15 +18,15 @@ apply plugin: 'java'
 apply plugin: 'application'
 
 repositories {
-  jcenter()
+    jcenter()
 }
 
 dependencies {
-  compile 'io.vertx:vertx-tcp-eventbus-bridge:3.2.1'
+    compile 'io.vertx:vertx-tcp-eventbus-bridge:3.3.2'
 }
 
 mainClassName = 'app.Main'
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.11'
+    gradleVersion = '2.11'
 }
