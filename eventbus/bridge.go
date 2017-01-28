@@ -22,6 +22,10 @@ import (
 	"net"
 	"sync"
 	"crypto/tls"
+	"github.com/gorilla/websocket"
+	"net/url"
+	"log"
+	"net/http"
 )
 
 // A connection to an event bus TCP bridge.
@@ -48,9 +52,19 @@ func NewEventBus(address string) (*EventBus, error) {
 	return &EventBus{connection, sync.Mutex{}}, nil
 }
 func NewTLSEventBus(address string, tlsconfig tls.Config) (*EventBus, error) {
-	connection, err := tls.Dial("tcp", address,tlsconfig)
+	connection, err := tls.Dial("tcp", address, tlsconfig)
 	if err != nil {
 		return nil, err
+	}
+	return &EventBus{connection, sync.Mutex{}}, nil
+}
+func NewWSEventbus(address string, dialer websocket.Dialer, headers http.Header) (*EventBus, error) {
+	u := url.URL(address)
+	log.Printf("connecting to %s", u.String())
+
+	connection, _, err := dialer.Dial(u.String(), headers)
+	if err != nil {
+		log.Fatal("dial:", err)
 	}
 	return &EventBus{connection, sync.Mutex{}}, nil
 }
