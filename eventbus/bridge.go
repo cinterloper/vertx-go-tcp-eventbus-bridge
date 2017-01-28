@@ -38,6 +38,11 @@ type EventBus struct {
 	sendMutex  sync.Mutex
 }
 
+type abstractConn interface {
+
+
+
+}
 
 // Connects to a remote Vert.x application over the event bus TCP bridge.
 //
@@ -51,7 +56,7 @@ func NewEventBus(address string) (*EventBus, error) {
 	}
 	return &EventBus{connection, sync.Mutex{}}, nil
 }
-func NewTLSEventBus(address string, tlsconfig tls.Config) (*EventBus, error) {
+func NewTLSEventBus(address string, tlsconfig *tls.Config) (*EventBus, error) {
 	connection, err := tls.Dial("tcp", address, tlsconfig)
 	if err != nil {
 		return nil, err
@@ -59,13 +64,18 @@ func NewTLSEventBus(address string, tlsconfig tls.Config) (*EventBus, error) {
 	return &EventBus{connection, sync.Mutex{}}, nil
 }
 func NewWSEventbus(address string, dialer websocket.Dialer, headers http.Header) (*EventBus, error) {
-	u := url.URL(address)
-	log.Printf("connecting to %s", u.String())
 
+	u,err := url.Parse(address)
+	if err != nil {
+		log.Printf("connecting to %s", u.String())
+	}else{
+		return nil,err
+	}
 	connection, _, err := dialer.Dial(u.String(), headers)
 	if err != nil {
 		log.Fatal("dial:", err)
 	}
+
 	return &EventBus{connection, sync.Mutex{}}, nil
 }
 
